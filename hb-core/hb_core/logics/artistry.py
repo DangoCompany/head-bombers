@@ -2,9 +2,9 @@ import cv2
 import numpy as np
 from scipy.fft import fft
 
-from error_code import ErrorCode
-from repositories.system import exists_path, read_binary
-from schemas import CalculateParameterReturnValue
+from hb_core.dtos.dto import CalculateParameterReturnValue
+from hb_core.error.error_code import ErrorCode
+from hb_core.repositories.system import exists_path, read_binary
 
 
 def calculate_artistry(file_content: bytes) -> CalculateParameterReturnValue:
@@ -20,14 +20,16 @@ def calculate_artistry(file_content: bytes) -> CalculateParameterReturnValue:
     _, binary_image = cv2.threshold(gray_image, 100, 200, cv2.THRESH_BINARY)
 
     # 輪郭検出
-    contours, _ = cv2.findContours(binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+    contours, _ = cv2.findContours(
+        binary_image, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE
+    )
 
     # 輪郭の中心を計算
     if len(contours) > 0:
         largest_contour = max(contours, key=cv2.contourArea)
         M = cv2.moments(largest_contour)
-        cx = int(M['m10'] / M['m00'])
-        cy = int(M['m01'] / M['m00'])
+        cx = int(M["m10"] / M["m00"])
+        cy = int(M["m01"] / M["m00"])
     else:
         cx, cy = 0, 0
 
@@ -48,21 +50,23 @@ def calculate_artistry(file_content: bytes) -> CalculateParameterReturnValue:
 
     # 寝癖の数値を返す
     return CalculateParameterReturnValue(
-        error_codes=[],
-        parameter=sleep_magnitude
+        error_codes=(),
+        parameter=sleep_magnitude,
     )
 
 
 def get_artistry(file_path: str) -> CalculateParameterReturnValue:
     if not exists_path(file_path):
         return CalculateParameterReturnValue(
-            error_codes=(ErrorCode.FILE_NOT_EXIST,)
+            error_codes=(ErrorCode.FILE_NOT_EXIST,),
+            parameter=0,
         )
 
     # ファイルが JPEG 形式かどうかを確認
-    if file_path.lower().endswith('.jpg') or file_path.lower().endswith('.jpeg'):
+    if file_path.lower().endswith(".jpg"):
         return calculate_artistry(read_binary(file_path))
     else:
         return CalculateParameterReturnValue(
-            error_codes=(ErrorCode.FILE_NOT_EXIST,)
+            error_codes=(ErrorCode.FILE_NOT_EXIST,),
+            parameter=0,
         )
