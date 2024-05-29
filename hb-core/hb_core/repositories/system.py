@@ -1,5 +1,6 @@
-import os
 import json
+import os
+from typing import Any, Dict
 
 
 def exists_path(filename: str) -> bool:
@@ -14,13 +15,13 @@ def make_dir(dirname: str) -> None:
     os.makedirs(dirname)
 
 
-def read_json(filename: str) -> dict:
-    with open(filename, 'r') as json_file:
+def read_json(filename: str) -> Dict[str, Any]:
+    with open(filename, "r") as json_file:
         return json.load(json_file)
 
 
-def write_json(filename: str, data: dict) -> None:
-    with open(filename, 'w') as json_file:
+def write_json(filename: str, data: Dict[str, Any]) -> None:
+    with open(filename, "w") as json_file:
         json.dump(data, json_file)
 
 
